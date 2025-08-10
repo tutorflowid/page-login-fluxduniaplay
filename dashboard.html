@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FluxDuniaPlay</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0d0d0d;
+  --card:#1a1a1a;
+  --accent:#ff005c;
+  --text:#f5f5f5;
+  --gray:#777;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:var(--bg);color:var(--text)}
+header{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;background:#111;position:sticky;top:0;z-index:30;}
+.logo{font-weight:600;font-size:1.3rem;color:var(--accent);position:absolute;left:50%;transform:translateX(-50%);}
+nav{display:flex;gap:1rem;}
+nav a{text-decoration:none;color:var(--text);font-size:.9rem;transition:.3s;}
+nav a:hover{color:var(--accent)}
+#nav-toggle{display:none}
+.hamburger{display:none;width:25px;height:20px;position:relative;cursor:pointer;}
+.hamburger span{position:absolute;left:0;width:100%;height:3px;background:var(--accent);transition:.4s;}
+.hamburger span:nth-child(1){top:0;}
+.hamburger span:nth-child(2){top:50%;transform:translateY(-50%);}
+.hamburger span:nth-child(3){bottom:0;}
+#nav-toggle:checked + label.hamburger span:nth-child(1){transform:rotate(45deg);top:9px;}
+#nav-toggle:checked + label.hamburger span:nth-child(2){opacity:0;}
+#nav-toggle:checked + label.hamburger span:nth-child(3){transform:rotate(-45deg);bottom:9px;}
+@media(max-width:768px){
+  .hamburger{display:block;z-index:101;}
+  nav{position:fixed;top:0;left:-100%;flex-direction:column;background:#111;width:200px;height:100vh;padding-top:4rem;transition:left .4s ease;z-index:100;}
+  nav a{margin:1rem;padding:.5rem 1rem;}
+  #nav-toggle:checked ~ nav{left:0;}
+}
+.search-wrapper{background:#111;padding:.5rem 1rem;display:flex;justify-content:center;}
+.search-bar{position:relative;width:100%;max-width:300px}
+.search-bar input{padding:.45rem 2.3rem .45rem .8rem;border-radius:20px;border:none;background:var(--card);color:var(--text);width:100%;}
+.search-bar i{position:absolute;right:.7rem;top:50%;transform:translateY(-50%);color:var(--accent);cursor:pointer}
+.logout-btn{background:var(--accent);border:none;padding:.4rem .9rem;border-radius:20px;color:#fff;font-weight:600;cursor:pointer;font-size:.8rem}
+.grid{display:grid;grid-template-columns:repeat(8,1fr);gap:.7rem;padding:.7rem;}
+@media(max-width:1200px){.grid{grid-template-columns:repeat(6,1fr)}}
+@media(max-width:992px){.grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:768px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.grid{grid-template-columns:repeat(1,1fr)}}
+.card{background:var(--card);border-radius:6px;overflow:hidden;cursor:pointer;transition:transform .3s,box-shadow .3s}
+.card:hover{transform:scale(1.03);box-shadow:0 0 10px var(--accent)}
+.thumb{width:100%;aspect-ratio:2/3;object-fit:cover}
+.info{padding:.5rem .7rem}
+.title{font-size:.8rem;font-weight:600;margin-bottom:.2rem}
+.meta{font-size:.7rem;color:var(--gray)}
+.meta span{margin-right:.4rem}
+.meta .genre{background:#333;padding:.1rem .35rem;border-radius:3px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:100;display:none}
+.close-btn{position:absolute;top:1rem;right:1.5rem;background:none;border:none;font-size:2rem;color:#fff;cursor:pointer}
+.video-wrapper{position:relative;width:90%;max-width:900px;background:#000;border-radius:8px;overflow:hidden;}
+.video-wrapper iframe,
+.video-wrapper video{width:100%;height:auto;display:block;}
+footer{text-align:center;padding:1rem .5rem;font-size:.75rem;color:var(--gray);border-top:1px solid #222;margin-top:1.5rem}
+
+/* Custom Player Controls */
+.custom-controls{position:absolute;bottom:0;width:100%;background:rgba(0,0,0,.6);display:flex;flex-direction:column;padding:.5rem;gap:.4rem;}
+.progress{width:100%;height:5px;cursor:pointer;background:#444;}
+.progress-filled{height:5px;background:var(--accent);width:0%;}
+.controls-row{display:flex;justify-content:space-between;align-items:center;gap:.5rem;}
+.controls-left,.controls-right{display:flex;align-items:center;gap:.5rem;}
+button.control-btn,select{background:none;border:none;color:white;cursor:pointer;font-size:1rem;}
+.volume{width:80px;}
+.time{font-size:.8rem;}
+
+/* Modal video container */
+#videoContainer {
+  width: 90%;
+  max-width: 1000px;
+  aspect-ratio: 16/9;
+  background: black;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Video element */
+#videoContainer video,
+#videoContainer iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: black;
+}
+
+/* Custom player controls fix */
+.custom-player {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.custom-player video {
+  flex: 1;
+  object-fit: contain;
+  background: black;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  padding: .5rem;
+  background: rgba(0,0,0,0.7);
+  gap: .5rem;
+}
+
+.toast-message {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  z-index: 9999;
+}
+.toast-message.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+</style>
+</head>
+<body>
+<header>
+  <input type="checkbox" id="nav-toggle">
+  <label for="nav-toggle" class="hamburger"><span></span><span></span><span></span></label>
+  <div class="logo">FluxDuniaPlay</div>
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Ilham 01</a>
+    <a href="#">Ilham 02</a>
+    <a href="#">Ilham 03</a>
+  </nav>
+  <button class="logout-btn">Logout</button>
+</header>
+<div class="search-wrapper">
+  <div class="search-bar">
+    <input placeholder="Cari film..." />
+    <i class="fas fa-search"></i>
+  </div>
+</div>
+<main class="grid" id="movieGrid"></main>
+<div class="modal" id="playerModal">
+  <span class="close-btn">&times;</span>
+  <div class="video-wrapper" id="videoContainer"></div>
+</div>
+<footer>&copy; 2025 FluxDuniaPlay. All rights reserved.</footer>
+
+<script>
+const films = [
+  {
+    title:"Jurassic World: Rebirth",
+    genre:"Action",
+    rating:4.7,
+    thumb:"https://res.cloudinary.com/doblyl2yi/image/upload/v1754452077/film-jurassic-world-rebirth-2025-lk21-d21.jpg_bnzlb4.jpg",
+    src:"https://vidoza.net/embed-0kilcdh6dbcv.html"
+  },
+  {
+    title:"S-Line Episode 6",
+    genre:"Drama",
+    rating:4.5,
+    thumb:"https://res.cloudinary.com/doblyl2yi/image/upload/v1753672642/THUMBNAIL_S_LINE_EPS_6_vrqo3b.png",
+    src:""
+  },
+  {
+    title:"Mission Impossible 2025",
+    genre:"Action",
+    rating:4.9,
+    thumb:"https://res.cloudinary.com/doblyl2yi/image/upload/v1752216272/Thumbnail_Mission_Impossible_2025_mtrgqx.png",
+    src:""
+  },
+  {
+  title: "ILHAM GANTENG",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "https://res.cloudinary.com/doblyl2yi/image/upload/v1752216272/Thumbnail_Mission_Impossible_2025_mtrgqx.png",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "URL Thumbnail",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "URL Thumbnail",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "URL Thumbnail",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "URL Thumbnail",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "https://res.cloudinary.com/doblyl2yi/image/upload/v1753672642/THUMBNAIL_S_LINE_EPS_6_vrqo3b.png",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "https://res.cloudinary.com/doblyl2yi/image/upload/v1753672642/THUMBNAIL_S_LINE_EPS_6_vrqo3b.png",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "URL Thumbnail",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "URL Thumbnail",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "URL Thumbnail",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "URL Thumbnail",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "URL Thumbnail",
+  src: "" // kosong dulu kalau belum ada video
+  },
+  {
+  title: "Judul Film",
+  genre: "Genre",
+  rating: 4.5,
+  thumb: "URL Thumbnail",
+  src: "" // kosong dulu kalau belum ada video
+  },
+];
+
+const grid = document.getElementById('movieGrid');
+const modal = document.getElementById('playerModal');
+const videoContainer = document.getElementById('videoContainer');
+const closeBtn = document.querySelector('.close-btn');
+
+films.forEach(f => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <img class="thumb" src="${f.thumb}" alt="${f.title}">
+    <div class="info">
+      <div class="title">${f.title}</div>
+      <div class="meta">
+        <span>⭐ ${f.rating}</span>
+        <span class="genre">${f.genre}</span>
+      </div>
+    </div>
+  `;
+  card.onclick = () => {
+    videoContainer.innerHTML = '';
+
+    if (!f.src || f.src.trim() === "") {
+      showToast(`🎬 ${f.title} - Coming Soon!`);
+      return;
+    }
+
+    if (f.src.endsWith('.mp4')) {
+      loadCustomPlayer(f.src);
+    } else {
+      videoContainer.innerHTML = `<iframe src="${f.src}" allowfullscreen></iframe>`;
+    }
+    modal.style.display = 'flex';
+  };
+  grid.appendChild(card);
+});
+
+function loadCustomPlayer(src){
+  videoContainer.innerHTML = `
+    <video id="customVideo" src="${src}" autoplay></video>
+    <div class="custom-controls">
+      <div class="progress"><div class="progress-filled"></div></div>
+      <div class="controls-row">
+        <div class="controls-left">
+          <button class="control-btn" id="playPause"><i class="fas fa-pause"></i></button>
+          <span class="time" id="timeDisplay">0:00 / 0:00</span>
+        </div>
+        <div class="controls-right">
+          <input type="range" id="volume" class="volume" min="0" max="1" step="0.05" value="1">
+          <select id="playbackRate">
+            <option value="0.5">0.5x</option>
+            <option value="1" selected>1x</option>
+            <option value="1.5">1.5x</option>
+            <option value="2">2x</option>
+          </select>
+          <button class="control-btn" id="fullscreen"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
+    </div>
+  `;
+  const video = document.getElementById('customVideo');
+  const playPause = document.getElementById('playPause');
+  const timeDisplay = document.getElementById('timeDisplay');
+  const progress = document.querySelector('.progress');
+  const progressFilled = document.querySelector('.progress-filled');
+  const volume = document.getElementById('volume');
+  const playbackRate = document.getElementById('playbackRate');
+  const fullscreenBtn = document.getElementById('fullscreen');
+
+  playPause.onclick = () => {
+    if(video.paused){video.play();playPause.innerHTML='<i class="fas fa-pause"></i>';}
+    else{video.pause();playPause.innerHTML='<i class="fas fa-play"></i>';}
+  };
+  video.ontimeupdate = () => {
+    const current = video.currentTime;
+    const duration = video.duration;
+    progressFilled.style.width = `${(current/duration)*100}%`;
+    timeDisplay.textContent = `${formatTime(current)} / ${formatTime(duration)}`;
+  };
+  progress.onclick = (e) => {
+    const rect = progress.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    video.currentTime = percentage * video.duration;
+  };
+  volume.oninput = () => video.volume = volume.value;
+  playbackRate.onchange = () => video.playbackRate = playbackRate.value;
+  fullscreenBtn.onclick = () => {
+    if(videoContainer.requestFullscreen) videoContainer.requestFullscreen();
+  };
+}
+function formatTime(sec){
+  const m = Math.floor(sec/60);
+  const s = Math.floor(sec%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+closeBtn.onclick = () => {
+  modal.style.display = 'none';
+  videoContainer.innerHTML = '';
+};
+window.onclick = e => {
+  if (e.target === modal) {
+    modal.style.display = 'none';
+    videoContainer.innerHTML = '';
+  }
+};
+
+// === Tambahan Toast Notification ===
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'toast-message';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => toast.classList.add('show'), 50);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+</script>
+</body>
+</html>
