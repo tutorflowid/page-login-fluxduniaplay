@@ -2,7 +2,6 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"/>
-<button id="logoutBtn">Logout</button>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>FluxDuniaPlay</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
@@ -41,7 +40,7 @@ nav a:hover{color:var(--accent)}
 .search-bar{position:relative;width:100%;max-width:300px}
 .search-bar input{padding:.45rem 2.3rem .45rem .8rem;border-radius:20px;border:none;background:var(--card);color:var(--text);width:100%;}
 .search-bar i{position:absolute;right:.7rem;top:50%;transform:translateY(-50%);color:var(--accent);cursor:pointer}
-.logout-btn{background:var(--accent);border:none;padding:.4rem .9rem;border-radius:20px;color:#fff;font-weight:600;cursor:pointer;font-size:.8rem}
+.logoutBtn{background:var(--accent);border:none;padding:.4rem .9rem;border-radius:20px;color:#fff;font-weight:600;cursor:pointer;font-size:.8rem}
 .grid{display:grid;grid-template-columns:repeat(8,1fr);gap:.7rem;padding:.7rem;}
 @media(max-width:1200px){.grid{grid-template-columns:repeat(6,1fr)}}
 @media(max-width:992px){.grid{grid-template-columns:repeat(4,1fr)}}
@@ -147,7 +146,7 @@ button.control-btn,select{background:none;border:none;color:white;cursor:pointer
     <a href="#">Ilham 02</a>
     <a href="#">Ilham 03</a>
   </nav>
-  <button class="logout-btn">Logout</button>
+  <button id="logoutBtn">Logout</button>
 </header>
 <div class="search-wrapper">
   <div class="search-bar">
@@ -438,4 +437,5 @@ function showToast(message) {
 </script>
 </body>
 </html>
+
 
