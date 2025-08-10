@@ -382,7 +382,6 @@ window.onclick = e => {
     videoContainer.innerHTML = '';
   }
 };
-
 // === Tambahan Toast Notification ===
 function showToast(message) {
   const toast = document.createElement('div');
@@ -396,6 +395,45 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
+</script>
+
+<!-- Proteksi Login & Logout -->
+<script type="module">
+  // Import Firebase Auth & App
+  import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+
+  // Firebase config kamu
+  const firebaseConfig = {
+    apiKey: "AIzaSyDsFRTekqFlakN4u6EMPP4ErT5TSMH7DX8",
+    authDomain: "fluxduniaplay-auth.firebaseapp.com",
+    projectId: "fluxduniaplay-auth",
+    storageBucket: "fluxduniaplay-auth.firebasestorage.app",
+    messagingSenderId: "911766289479",
+    appId: "1:911766289479:web:0730db30f516bfad61c562"
+  };
+
+  // Init Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Proteksi halaman VIP → kalau belum login, redirect ke website publik
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "https://www.fluxduniaplay.my.id";
+    }
+  });
+
+  // Tombol Logout (pastikan ada elemen dengan id="logoutBtn" di HTML)
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    signOut(auth)
+      .then(() => {
+        window.location.href = "https://www.fluxduniaplay.my.id";
+      })
+      .catch((error) => {
+        console.error("Logout gagal:", error);
+      });
+  });
 </script>
 </body>
 </html>
