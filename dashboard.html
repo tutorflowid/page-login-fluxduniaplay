@@ -133,6 +133,30 @@ button.control-btn,select{background:none;border:none;color:white;cursor:pointer
   transform: translateY(0);
 }
 
+  #logoutBtn {
+  background: linear-gradient(135deg, #ff4d4d, #ff1a1a);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
+#logoutBtn:hover {
+  background: linear-gradient(135deg, #ff1a1a, #cc0000);
+  box-shadow: 0 6px 15px rgba(255, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+#logoutBtn:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.4);
+}
+
 </style>
 </head>
 <body>
@@ -437,5 +461,6 @@ function showToast(message) {
 </script>
 </body>
 </html>
+
 
 
