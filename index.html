@@ -29,10 +29,39 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <!-- Notifikasi -->
+  <div id="notification"></div>
 
+  <!-- CSS Notifikasi -->
+  <style>
+    #notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      min-width: 250px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+      z-index: 9999;
+    }
+    #notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .notif-success {
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    }
+    .notif-error {
+      background: linear-gradient(135deg, #f44336, #b71c1c);
+    }
+  </style>
+
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -50,6 +79,14 @@
     const auth = getAuth(app);
 
     const loginForm = document.getElementById("loginForm");
+    const notif = document.getElementById("notification");
+
+    function showNotification(message, type) {
+      notif.textContent = message;
+      notif.className = type === "success" ? "notif-success" : "notif-error";
+      notif.classList.add("show");
+      setTimeout(() => notif.classList.remove("show"), 3000);
+    }
 
     loginForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -57,12 +94,12 @@
       const password = document.getElementById("password").value;
 
       signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          alert("Login berhasil!");
-          window.location.href = "dashboard.html";
+        .then(() => {
+          showNotification("✅ Login berhasil!", "success");
+          setTimeout(() => window.location.href = "dashboard.html", 1500);
         })
         .catch((error) => {
-          alert("Login gagal: " + error.message);
+          showNotification("❌ Login gagal: " + error.message, "error");
         });
     });
   </script>
