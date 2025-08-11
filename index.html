@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FluxDuniaPlay – Login</title>
-  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div id="particles-js"></div>
@@ -13,59 +13,36 @@
   <div class="card">
     <div class="logo">FluxDuniaPlay</div>
     <p class="sub">Masuk untuk melanjutkan petualanganmu!</p>
+
     <form id="loginForm">
       <div class="field">
         <label for="email">Email</label>
-        <input type="email" id="email" required placeholder="you@example.com"/>
+        <input type="email" id="email" required placeholder="you@example.com" />
       </div>
       <div class="field">
         <label for="password">Password</label>
-        <input type="password" id="password" required placeholder="••••••••"/>
+        <input type="password" id="password" required placeholder="••••••••" />
       </div>
-      <button type="submit" class="btn">Login</button>
+      <button type="submit" class="btn" id="loginBtn">Login</button>
     </form>
+
     <div class="footer">
       Belum punya akun? <a href="index2.html">Daftar sekarang</a>
     </div>
   </div>
 
-  <!-- Notifikasi -->
-  <div id="notification"></div>
+  <!-- Notification element -->
+  <div id="notification" aria-live="polite"></div>
 
-  <!-- CSS Notifikasi -->
-  <style>
-    #notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      min-width: 250px;
-      padding: 15px 20px;
-      border-radius: 8px;
-      color: #fff;
-      font-weight: bold;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      opacity: 0;
-      transform: translateY(-20px);
-      transition: all 0.3s ease;
-      z-index: 9999;
-    }
-    #notification.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .notif-success {
-      background: linear-gradient(135deg, #4CAF50, #2E7D32);
-    }
-    .notif-error {
-      background: linear-gradient(135deg, #f44336, #b71c1c);
-    }
-  </style>
-
-  <!-- Firebase SDK -->
+  <!-- Firebase + Login logic (module) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+    // <-- PASTE firebaseConfig kamu di sini (sudah dari kamu sebelumnya) -->
     const firebaseConfig = {
       apiKey: "AIzaSyDsFRTekqFlakN4u6EMPP4ErT5TSMH7DX8",
       authDomain: "fluxduniaplay-auth.firebaseapp.com",
@@ -80,31 +57,76 @@
 
     const loginForm = document.getElementById("loginForm");
     const notif = document.getElementById("notification");
+    const loginBtn = document.getElementById("loginBtn");
 
-    function showNotification(message, type) {
+    function showNotification(message, type = "error") {
       notif.textContent = message;
-      notif.className = type === "success" ? "notif-success" : "notif-error";
-      notif.classList.add("show");
-      setTimeout(() => notif.classList.remove("show"), 3000);
+      notif.className = type === "success" ? "notif-success show" : "notif-error show";
+      // Hide after 3s
+      setTimeout(() => {
+        notif.classList.remove("show");
+      }, 3000);
     }
 
-    loginForm.addEventListener("submit", (e) => {
+    // map firebase error codes to friendly messages
+    function friendlyError(code) {
+      switch (code) {
+        case "auth/user-not-found": return "Email tidak ditemukan. Silakan daftar dulu.";
+        case "auth/wrong-password": return "Password salah. Coba lagi.";
+        case "auth/invalid-email": return "Format email tidak valid.";
+        case "auth/too-many-requests": return "Terlalu banyak percobaan. Coba lagi nanti.";
+        default: return "Gagal login. Periksa email & password.";
+      }
+    }
+
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById("email").value;
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Memproses...";
+
+      const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
 
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          showNotification("✅ Login berhasil!", "success");
-          setTimeout(() => window.location.href = "dashboard.html", 1500);
-        })
-        .catch((error) => {
-          showNotification("❌ Login gagal: " + error.message, "error");
-        });
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        showNotification("✅ Login berhasil! Mengarahkan ke dashboard...", "success");
+        setTimeout(() => window.location.href = "dashboard.html", 1400);
+      } catch (err) {
+        const msg = friendlyError(err.code || "");
+        showNotification(`❌ ${msg}`, "error");
+        console.error("Firebase login error:", err);
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Login";
+      }
     });
   </script>
 
+  <!-- particles.js (optional) -->
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
   <script src="js/main login.js"></script>
+  <!-- Notification CSS (copy into your css/style.css if you prefer) -->
+  <style>
+    #notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      min-width: 240px;
+      max-width: 320px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      transform: translateY(-10px);
+      opacity: 0;
+      transition: all .28s ease;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    #notification.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .notif-success { background: linear-gradient(135deg,#4CAF50,#2E7D32); }
+    .notif-error { background: linear-gradient(135deg,#f44336,#b71c1c); }
+  </style>
 </body>
 </html>
