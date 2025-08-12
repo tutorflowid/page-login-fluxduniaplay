@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verifikasi Email - FluxDuniaPlay VIP</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #141418);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+      color: #ffcc00;
+    }
+    p {
+      font-size: 1rem;
+      margin-bottom: 20px;
+      color: #ccc;
+    }
+    button {
+      background: #ffcc00;
+      color: #1e1e2f;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #ffaa00;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Verifikasi Email Kamu</h1>
+    <p>Kami sudah mengirimkan link verifikasi ke email kamu. Silakan cek inbox atau folder spam.</p>
+    <button onclick="resendVerification()">Kirim Ulang Email Verifikasi</button>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getAuth, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsFRTekqFlakN4u6EMPP4ErT5TSMH7DX8",
+      authDomain: "fluxduniaplay-auth.firebaseapp.com",
+      projectId: "fluxduniaplay-auth",
+      storageBucket: "fluxduniaplay-auth.firebasestorage.app",
+      messagingSenderId: "911766289479",
+      appId: "1:911766289479:web:0730db30f516bfad61c562"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    function resendVerification() {
+      const user = auth.currentUser;
+      if (user) {
+        sendEmailVerification(user)
+          .then(() => {
+            alert("Email verifikasi telah dikirim ulang. Silakan cek inbox!");
+          })
+          .catch((error) => {
+            alert("Gagal mengirim ulang email: " + error.message);
+          });
+      } else {
+        alert("Tidak ada user yang login.");
+      }
+    }
+
+    window.resendVerification = resendVerification;
+  </script>
+</body>
+</html>
