@@ -62,47 +62,68 @@
   </style>
 
   <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    sendEmailVerification, 
+    signOut 
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDsFRTekqFlakN4u6EMPP4ErT5TSMH7DX8",
-      authDomain: "fluxduniaplay-auth.firebaseapp.com",
-      projectId: "fluxduniaplay-auth",
-      storageBucket: "fluxduniaplay-auth.firebasestorage.app",
-      messagingSenderId: "911766289479",
-      appId: "1:911766289479:web:0730db30f516bfad61c562"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDsFRTekqFlakN4u6EMPP4ErT5TSMH7DX8",
+    authDomain: "fluxduniaplay-auth.firebaseapp.com",
+    projectId: "fluxduniaplay-auth",
+    storageBucket: "fluxduniaplay-auth.firebasestorage.app",
+    messagingSenderId: "911766289479",
+    appId: "1:911766289479:web:0730db30f516bfad61c562"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-    const loginForm = document.getElementById("loginForm");
-    const notif = document.getElementById("notification");
+  const loginForm = document.getElementById("loginForm");
+  const notif = document.getElementById("notification");
 
-    function showNotification(message, type) {
-      notif.textContent = message;
-      notif.className = type === "success" ? "notif-success" : "notif-error";
-      notif.classList.add("show");
-      setTimeout(() => notif.classList.remove("show"), 3000);
-    }
+  function showNotification(message, type) {
+    notif.textContent = message;
+    notif.className = type === "success" ? "notif-success" : "notif-error";
+    notif.classList.add("show");
+    setTimeout(() => notif.classList.remove("show"), 3000);
+  }
 
-    loginForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+  loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+
+        if (user.emailVerified) {
+          // Sudah verifikasi → lanjut ke dashboard
           showNotification("✅ Login berhasil!", "success");
           setTimeout(() => window.location.href = "dashboard.html", 1500);
-        })
-        .catch((error) => {
-          showNotification("❌ Login gagal: " + error.message, "error");
-        });
-    });
-  </script>
+        } else {
+          // Belum verifikasi → kirim ulang email + logout
+          sendEmailVerification(user)
+            .then(() => {
+              showNotification("📩 Email verifikasi sudah dikirim ulang. Cek inbox!", "error");
+              signOut(auth);
+            })
+            .catch(() => {
+              showNotification("❌ Gagal mengirim ulang email verifikasi.", "error");
+              signOut(auth);
+            });
+        }
+      })
+      .catch((error) => {
+        showNotification("❌ Login gagal: " + error.message, "error");
+      });
+  });
+</script>
 
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 </body>
