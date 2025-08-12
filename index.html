@@ -24,6 +24,12 @@
       </div>
       <button type="submit" class="btn">Login</button>
     </form>
+
+    <!-- Tombol kirim ulang verifikasi -->
+    <div id="resendContainer" style="display:none; margin-top:15px;">
+      <button id="resendBtn" class="btn" style="background:#f39c12;">Kirim Ulang Email Verifikasi</button>
+    </div>
+
     <div class="footer">
       Belum punya akun? <a href="index2.html">Daftar sekarang</a>
     </div>
@@ -85,6 +91,9 @@
 
   const loginForm = document.getElementById("loginForm");
   const notif = document.getElementById("notification");
+  const resendContainer = document.getElementById("resendContainer");
+  const resendBtn = document.getElementById("resendBtn");
+  let pendingUser = null; // simpan user sementara untuk resend
 
   function showNotification(message, type) {
     notif.textContent = message;
@@ -103,25 +112,31 @@
         const user = userCredential.user;
 
         if (user.emailVerified) {
-          // Sudah verifikasi → lanjut ke dashboard
           showNotification("✅ Login berhasil!", "success");
           setTimeout(() => window.location.href = "dashboard.html", 1500);
         } else {
-          // Belum verifikasi → kirim ulang email + logout
-          sendEmailVerification(user)
-            .then(() => {
-              showNotification("📩 Email verifikasi sudah dikirim ulang. Cek inbox!", "error");
-              signOut(auth);
-            })
-            .catch(() => {
-              showNotification("❌ Gagal mengirim ulang email verifikasi.", "error");
-              signOut(auth);
-            });
+          pendingUser = user;
+          showNotification("⚠ Email belum diverifikasi. Silakan cek inbox.", "error");
+          resendContainer.style.display = "block";
+          signOut(auth);
         }
       })
       .catch((error) => {
         showNotification("❌ Login gagal: " + error.message, "error");
       });
+  });
+
+  resendBtn.addEventListener("click", () => {
+    if (pendingUser) {
+      sendEmailVerification(pendingUser)
+        .then(() => {
+          showNotification("📩 Email verifikasi telah dikirim ulang!", "success");
+          resendContainer.style.display = "none";
+        })
+        .catch(() => {
+          showNotification("❌ Gagal mengirim ulang email verifikasi.", "error");
+        });
+    }
   });
 </script>
 
